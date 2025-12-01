@@ -29,15 +29,12 @@ fn main() {
     let mut position = 50;
 
     for &i in &input {
-        let next_position = (position + i) % 100;
+        // divide toward negative infinity so that even `-1` counts as a "wraparound"
+        let wraparounds = (position + i).div_euclid(100);
+        count_of_zero += wraparounds.abs();
 
-        if (next_position - position).signum() != i.signum() {
-            // if the signs don't match then we wrapped around.  hopefully this does the right thing
-            // when we actually land *on* zero.
-            count_of_zero += 1;
-        }
-
-        position = next_position;
+        position = (position + i).rem_euclid(100);
+        assert!(position >= 0);
     }
 
     println!("part 2: {count_of_zero}");
