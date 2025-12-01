@@ -6,7 +6,7 @@ fn main() {
         .lines()
         .map(|l| {
             if let Some(s) = l.strip_prefix("L") {
-                -1 * s.parse::<i32>().expect("input must be integers")
+                -s.parse::<i32>().expect("input must be integers")
             } else if let Some(s) = l.strip_prefix("R") {
                 s.parse::<i32>().expect("input must be integers")
             } else {
