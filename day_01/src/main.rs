@@ -24,4 +24,21 @@ fn main() {
     }
 
     println!("part 1: {count_of_zero}");
+
+    let mut count_of_zero = 0;
+    let mut position = 50;
+
+    for &i in &input {
+        let next_position = (position + i) % 100;
+
+        if (next_position - position).signum() != i.signum() {
+            // if the signs don't match then we wrapped around.  hopefully this does the right thing
+            // when we actually land *on* zero.
+            count_of_zero += 1;
+        }
+
+        position = next_position;
+    }
+
+    println!("part 2: {count_of_zero}");
 }
