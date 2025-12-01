@@ -24,4 +24,20 @@ fn main() {
     }
 
     println!("part 1: {count_of_zero}");
+
+    let mut count_of_zero = 0;
+    let mut position = 50;
+
+    for &i in &input {
+        for _ in 0..(i.abs()) {
+            position += i.signum();
+            position %= 100;
+
+            if position == 0 {
+                count_of_zero += 1;
+            }
+        }
+    }
+
+    println!("part 2: {count_of_zero}");
 }
