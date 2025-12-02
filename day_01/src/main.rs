@@ -59,7 +59,7 @@ fn part_2(input: &[i32]) -> usize {
         let new_position = (position + i).rem_euclid(100);
 
         // and if we're ending up on the wrong side of the previous position, then we must have passed zero an additional time
-        if (new_position - position).signum() != i.signum() {
+        if (new_position - position).signum() != i.signum() || new_position == 0 {
             new_this += 1;
         }
 
