@@ -42,14 +42,17 @@ fn part_2(input: &[i32]) -> usize {
     let mut position = 50;
 
     for &i in input {
-        for _ in 0..(i.abs()) {
-            position += i.signum();
-            position %= 100;
+        // full rotations in either direction, rounded down
+        count_of_zero += (i.abs() as usize) / 100;
 
-            if position == 0 {
-                count_of_zero += 1;
-            }
+        let new_position = (position + i).rem_euclid(100);
+
+        // and if we're ending up on the wrong side of the previous position, then we must have passed zero an additional time
+        if (new_position - position).signum() != i.signum() {
+            count_of_zero += 1;
         }
+
+        position = new_position;
     }
 
     count_of_zero
