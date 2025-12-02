@@ -1,8 +1,13 @@
 static INPUT: &str = include_str!("input.txt");
 
-
 fn main() {
-    let input = INPUT
+    let input = parse_input(INPUT);
+    println!("part 1: {}", part_1(&input));
+    println!("part 2: {}", part_2(&input));
+}
+
+fn parse_input(input: &str) -> Vec<i32> {
+    input
         .lines()
         .map(|l| {
             if let Some(s) = l.strip_prefix("L") {
@@ -13,12 +18,14 @@ fn main() {
                 panic!("input must start with L or R")
             }
         })
-        .collect::<Vec<_>>();
+        .collect()
+}
 
+fn part_1(input: &[i32]) -> usize {
     let mut count_of_zero = 0;
     let mut position = 50;
 
-    for &i in &input {
+    for &i in input {
         position += i;
         position %= 100;
 
@@ -27,12 +34,14 @@ fn main() {
         }
     }
 
-    println!("part 1: {count_of_zero}");
+    count_of_zero
+}
 
+fn part_2(input: &[i32]) -> usize {
     let mut count_of_zero = 0;
     let mut position = 50;
 
-    for &i in &input {
+    for &i in input {
         for _ in 0..(i.abs()) {
             position += i.signum();
             position %= 100;
@@ -43,5 +52,17 @@ fn main() {
         }
     }
 
-    println!("part 2: {count_of_zero}");
+    count_of_zero
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{INPUT, parse_input, part_1, part_2};
+
+    #[test]
+    fn personal_input() {
+        let input = parse_input(INPUT);
+        assert_eq!(1118, part_1(&input));
+        assert_eq!(6289, part_2(&input));
+    }
 }
