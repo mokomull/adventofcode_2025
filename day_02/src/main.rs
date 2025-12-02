@@ -29,7 +29,7 @@ where
     let end = ids.end().to_string();
     repeats
         .into_iter()
-        .take_while(|&n| n < end.len())
+        .take_while(|&n| n <= end.len())
         .map(|n| -> u64 {
             (start.len()..=end.len())
                 .map(|target_length| -> u64 {
