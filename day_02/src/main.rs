@@ -70,7 +70,7 @@ fn part_2(input: &[RangeInclusive<u64>]) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{parse_input, part_1, part_2};
+    use crate::{INPUT, parse_input, part_1, part_2};
 
     #[test]
     fn example() {
@@ -79,5 +79,12 @@ mod tests {
         );
         assert_eq!(1227775554, part_1(&input));
         assert_eq!(4174379265, part_2(&input));
+    }
+
+    #[test]
+    fn input() {
+        let input = parse_input(INPUT);
+        assert_eq!(19605500130, part_1(&input));
+        assert_eq!(36862281418, part_2(&input));
     }
 }
