@@ -1,4 +1,4 @@
-use std::ops::RangeInclusive;
+use std::ops::{RangeBounds, RangeInclusive};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -20,51 +20,63 @@ fn parse_input(input: &str) -> Vec<RangeInclusive<u64>> {
         .collect()
 }
 
-fn is_duplicated(id: u64) -> bool {
-    let id = id.to_string();
-    if id.len() % 2 != 0 {
-        return false;
-    }
+fn sum_of_replicated_digitstrings<R>(ids: RangeInclusive<u64>, repeats: R) -> u64
+where
+    R: RangeBounds<usize>,
+    R: IntoIterator<Item = usize>,
+{
+    let start = ids.start().to_string();
+    let end = ids.end().to_string();
+    repeats
+        .into_iter()
+        .take_while(|&n| n < end.len())
+        .map(|n| -> u64 {
+            (start.len()..=end.len())
+                .map(|target_length| -> u64 {
+                    if target_length % n != 0 {
+                        return 0;
+                    }
 
-    id[0..(id.len() / 2)] == id[(id.len() / 2)..]
+                    let partial_start = start[..(target_length / n)]
+                        .parse::<u64>()
+                        .expect("a truncated integer should still be an integer");
+
+                    (partial_start..)
+                        .map(|partial| {
+                            // take the first digits and glue them together n times
+                            let mut id = String::new();
+                            let partial = partial.to_string();
+
+                            for _ in 0..n {
+                                id.push_str(&partial);
+                            }
+
+                            id.parse::<u64>().expect(
+                                "repeating a substring of digits n times should still fit in a u64",
+                            )
+                        })
+                        // and stop once we've completely exhausted the input range
+                        .take_while(|id| ids.contains(id))
+                        .sum()
+                })
+                .sum()
+        })
+        .sum()
 }
 
 fn part_1(input: &[RangeInclusive<u64>]) -> u64 {
     input
         .iter()
         .cloned()
-        .flatten()
-        .filter(|&i| is_duplicated(i))
+        .map(|ids| sum_of_replicated_digitstrings(ids, 2..=2))
         .sum()
-}
-
-fn is_repeated(id: u64) -> bool {
-    let id = id.to_string();
-    let id = id.as_bytes();
-
-    for how_many_repeats in 2..=id.len() {
-        if id.len() % how_many_repeats != 0 {
-            // if we can't divide the string evenly then there's simply no hope
-            continue;
-        }
-
-        let chunks = id
-            .chunks(id.len() / how_many_repeats)
-            .collect::<Vec<&[u8]>>();
-        if chunks[1..].iter().all(|&chunk| chunk == chunks[0]) {
-            return true;
-        }
-    }
-
-    false
 }
 
 fn part_2(input: &[RangeInclusive<u64>]) -> u64 {
     input
         .iter()
         .cloned()
-        .flatten()
-        .filter(|&i| is_repeated(i))
+        .map(|ids| sum_of_replicated_digitstrings(ids, 2..))
         .sum()
 }
 
