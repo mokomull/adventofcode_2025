@@ -1,4 +1,7 @@
-use std::ops::{RangeBounds, RangeInclusive};
+use std::{
+    collections::HashSet,
+    ops::{RangeBounds, RangeInclusive},
+};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -27,6 +30,7 @@ where
 {
     let start = ids.start().to_string();
     let end = ids.end().to_string();
+    let mut seen = HashSet::new();
     repeats
         .into_iter()
         .take_while(|&n| n <= end.len())
@@ -69,6 +73,7 @@ where
                         })
                         // and stop once we've completely exhausted the input range
                         .take_while(|id| ids.contains(id))
+                        .filter(|&id| seen.insert(id))
                         .sum()
                 })
                 .sum()
