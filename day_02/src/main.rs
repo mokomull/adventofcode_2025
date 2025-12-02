@@ -37,9 +37,21 @@ where
                         return 0;
                     }
 
-                    let partial_start = start[..(target_length / n)]
-                        .parse::<u64>()
-                        .expect("a truncated integer should still be an integer");
+                    let partial_start = if target_length == start.len() {
+                        // if we're looking for the same number of digits as the range start, then
+                        // start iterating at the string-prefix of the beginning of the range
+                        start[..(target_length / n)]
+                            .parse::<u64>()
+                            .expect("a truncated integer should still be an integer")
+                    } else {
+                        // the start of the range was fewer digits than we're now targeting, so just
+                        // start at the smallest prefix with the target length -- that is, 10^{n-1}.
+                        let mut power_of_10 = 1_u64;
+                        for _ in 1..(target_length / n) {
+                            power_of_10 *= 10;
+                        }
+                        power_of_10
+                    };
 
                     (partial_start..)
                         .map(|partial| {
