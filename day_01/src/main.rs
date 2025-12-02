@@ -58,8 +58,12 @@ fn part_2(input: &[i32]) -> usize {
 
         let new_position = (position + i).rem_euclid(100);
 
-        // and if we're ending up on the wrong side of the previous position, then we must have passed zero an additional time
-        if (new_position - position).signum() != i.signum() || new_position == 0 {
+        // and if we're ending up on the wrong side of the previous position, then we must have
+        // passed zero an additional time.  if we end on zero, then definitely count that because we
+        // might be going back to the right without wrapping around.  and if we started on zero,
+        // then don't count any rollover, since we already counted that last iteration
+        if position != 0 && ((new_position - position).signum() != i.signum() || new_position == 0)
+        {
             new_this += 1;
         }
 
