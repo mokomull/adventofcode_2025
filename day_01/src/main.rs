@@ -42,19 +42,8 @@ fn part_2(input: &[i32]) -> usize {
     let mut position = 50;
 
     for &i in input {
-        let mut expected_this = 0;
-        let mut expected_new_position = position;
-        for _ in 0..(i.abs()) {
-            expected_new_position += i.signum();
-            expected_new_position = expected_new_position.rem_euclid(100);
-
-            if expected_new_position == 0 {
-                expected_this += 1;
-            }
-        }
-
         // full rotations in either direction, rounded down
-        let mut new_this = (i.abs() as usize) / 100;
+        count_of_zero += (i.abs() as usize) / 100;
 
         let new_position = (position + i).rem_euclid(100);
 
@@ -64,17 +53,8 @@ fn part_2(input: &[i32]) -> usize {
         // then don't count any rollover, since we already counted that last iteration
         if position != 0 && ((new_position - position).signum() != i.signum() || new_position == 0)
         {
-            new_this += 1;
+            count_of_zero += 1;
         }
-
-        assert_eq!(
-            expected_new_position, new_position,
-            "mismatch ending position, started at {position} and added {i}"
-        );
-        assert_eq!(
-            expected_this, new_this,
-            "mismatch zero crossings.  started at {position}, added {i}"
-        );
 
         position = new_position;
     }
