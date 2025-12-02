@@ -42,15 +42,35 @@ fn part_2(input: &[i32]) -> usize {
     let mut position = 50;
 
     for &i in input {
+        let mut expected_this = 0;
+        let mut expected_new_position = position;
+        for _ in 0..(i.abs()) {
+            expected_new_position += i.signum();
+            expected_new_position = expected_new_position.rem_euclid(100);
+
+            if expected_new_position == 0 {
+                expected_this += 1;
+            }
+        }
+
         // full rotations in either direction, rounded down
-        count_of_zero += (i.abs() as usize) / 100;
+        let mut new_this = (i.abs() as usize) / 100;
 
         let new_position = (position + i).rem_euclid(100);
 
         // and if we're ending up on the wrong side of the previous position, then we must have passed zero an additional time
         if (new_position - position).signum() != i.signum() {
-            count_of_zero += 1;
+            new_this += 1;
         }
+
+        assert_eq!(
+            expected_new_position, new_position,
+            "mismatch ending position, started at {position} and added {i}"
+        );
+        assert_eq!(
+            expected_this, new_this,
+            "mismatch zero crossings.  started at {position}, added {i}"
+        );
 
         position = new_position;
     }
