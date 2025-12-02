@@ -25,6 +25,10 @@ fn parse_input(input: &str) -> Vec<RangeInclusive<u64>> {
 
 fn sum_of_replicated_digitstrings<R>(ids: RangeInclusive<u64>, repeats: R) -> u64
 where
+    // the trait bound on RangeBounds is not actually necessary, it's just a small bit of insurance
+    // against an iterator that makes the outermost take_while() do something funky.  We know how
+    // ranges will iterate, this is just generic enough to handle a RangeInclusive for part 1 and a
+    // RangeFrom for part 2.
     R: RangeBounds<usize>,
     R: IntoIterator<Item = usize>,
 {
