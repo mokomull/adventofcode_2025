@@ -43,7 +43,7 @@ fn part_2(input: &[i32]) -> usize {
 
     for &i in input {
         // full rotations in either direction, rounded down
-        count_of_zero += (i.abs() as usize) / 100;
+        count_of_zero += (i.unsigned_abs() as usize) / 100;
 
         let new_position = (position + i).rem_euclid(100);
 
