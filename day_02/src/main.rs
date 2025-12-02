@@ -42,7 +42,7 @@ fn is_repeated(id: u64) -> bool {
     let id = id.to_string();
     let id = id.as_bytes();
 
-    for how_many_repeats in 2..id.len() {
+    for how_many_repeats in 2..=id.len() {
         if id.len() % how_many_repeats != 0 {
             // if we can't divide the string evenly then there's simply no hope
             continue;
