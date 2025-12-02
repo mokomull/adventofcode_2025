@@ -72,8 +72,8 @@ where
                             )
                         })
                         // and stop once we've completely exhausted the input range
-                        .take_while(|id| ids.contains(id))
-                        .filter(|&id| seen.insert(id))
+                        .take_while(|id| id <= ids.end())
+                        .filter(|id| ids.contains(id) && seen.insert(*id))
                         .sum()
                 })
                 .sum()
