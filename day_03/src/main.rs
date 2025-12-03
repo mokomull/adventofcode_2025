@@ -24,7 +24,7 @@ fn do_joltage<'a>(n: usize, batteries: &'a [u8]) -> u64 {
     'selected: for _ in 0..n {
         let mut returned = vec![];
         // pick the largest digit for the most-significant figure that we can
-        let digit = loop {
+        let (i, digit) = loop {
             let (d, Reverse(i)) = digits.pop().expect("we're out of possibilities");
             if i < max_i {
                 // this digit can never be used, we've already used a digit after it
@@ -38,11 +38,12 @@ fn do_joltage<'a>(n: usize, batteries: &'a [u8]) -> u64 {
                 continue;
             }
 
-            break d;
+            break (i, d);
         };
 
         digits.extend(returned);
         result.push(digit as char);
+        max_i = i;
     }
 
     result
