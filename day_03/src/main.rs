@@ -3,7 +3,7 @@ use itertools::Itertools;
 static INPUT: &str = include_str!("input.txt");
 
 fn main() {
-    println!("Hello, world!");
+    println!("part 1: {}", part_1(INPUT.lines()));
 }
 
 fn joltage(batteries: &str) -> u64 {
@@ -21,6 +21,10 @@ fn joltage(batteries: &str) -> u64 {
         })
         .max()
         .unwrap()
+}
+
+fn part_1<'a>(input: impl Iterator<Item = &'a str>) -> u64 {
+    input.map(joltage).sum()
 }
 
 #[cfg(test)]
