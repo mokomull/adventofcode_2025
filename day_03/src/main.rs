@@ -1,7 +1,4 @@
-use std::{
-    cmp::Reverse,
-    collections::{BinaryHeap, HashMap},
-};
+use std::{cmp::Reverse, collections::BinaryHeap};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -10,7 +7,7 @@ fn main() {
     println!("part 2: {}", part_2(INPUT.lines()));
 }
 
-fn do_joltage<'a>(n: usize, batteries: &'a [u8]) -> u64 {
+fn do_joltage(n: usize, batteries: &[u8]) -> u64 {
     let mut digits = BinaryHeap::new();
 
     for (i, &d) in batteries.iter().enumerate() {
@@ -21,7 +18,7 @@ fn do_joltage<'a>(n: usize, batteries: &'a [u8]) -> u64 {
 
     let mut result = String::new();
     let mut max_i = 0;
-    'selected: for _ in 0..n {
+    for _ in 0..n {
         let mut returned = vec![];
         // pick the largest digit for the most-significant figure that we can
         let (i, digit) = loop {
