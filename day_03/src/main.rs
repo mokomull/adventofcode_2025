@@ -65,7 +65,7 @@ fn part_2<'a>(input: impl Iterator<Item = &'a str>) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{joltage, joltage_override};
+    use crate::{INPUT, joltage, joltage_override, part_1, part_2};
 
     #[test]
     fn example() {
@@ -78,5 +78,11 @@ mod tests {
     fn example_override() {
         assert_eq!(987654321111, joltage_override("987654321111111"));
         assert_eq!(811111111119, joltage_override("811111111111119"));
+    }
+
+    #[test]
+    fn personal_input() {
+        assert_eq!(17207, part_1(INPUT.lines()));
+        assert_eq!(170997883706617, part_2(INPUT.lines()));
     }
 }
