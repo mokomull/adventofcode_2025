@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cmp::Reverse, collections::BinaryHeap};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -7,47 +7,49 @@ fn main() {
     println!("part 2: {}", part_2(INPUT.lines()));
 }
 
-fn do_joltage<'a>(
-    n: usize,
-    batteries: &'a [u8],
-    seen: &mut HashMap<(usize, &'a [u8]), u64>,
-) -> Option<u64> {
-    if n == 0 {
-        return Some(0);
+fn do_joltage(n: usize, batteries: &[u8]) -> u64 {
+    let mut digits = BinaryHeap::new();
+
+    for (i, &d) in batteries.iter().enumerate() {
+        // sorted ascending by digit value, and descending by index (i.e. we'll pick the left-most
+        // one of a given digit value first)
+        digits.push((d, Reverse(i)));
     }
 
-    if n > batteries.len() {
-        return None;
+    let mut result = String::new();
+    let mut max_i = 0;
+    for _ in 0..n {
+        let mut returned = vec![];
+        // pick the largest digit for the most-significant figure that we can
+        let (i, digit) = loop {
+            let (d, Reverse(i)) = digits.pop().expect("we're out of possibilities");
+            if i < max_i {
+                // this digit can never be used, we've already used a digit after it
+                continue;
+            }
+
+            if i > batteries.len() + result.len() - n {
+                // this digit is too far to the right to leave remaining possibilities, but we might
+                // use it later so put it back in the pot after we select this digit
+                returned.push((d, Reverse(i)));
+                continue;
+            }
+
+            break (i, d);
+        };
+
+        digits.extend(returned);
+        result.push(digit as char);
+        max_i = i;
     }
 
-    if let Some(&out) = seen.get(&(n, batteries)) {
-        return Some(out);
-    }
-
-    let (next_batteries, this_battery) = batteries.split_at(batteries.len() - 1);
-    assert_eq!(1, this_battery.len());
-    let this_battery = str::from_utf8(&[this_battery[0]])
-        .expect("a digit should be UTF-8")
-        .parse::<u64>()
-        .expect("a digit should be an integer");
-
-    let subproblems = [
-        do_joltage(n, next_batteries, seen),
-        do_joltage(n - 1, next_batteries, seen).map(|j| j * 10 + this_battery),
-    ];
-
-    let value = subproblems
-        .into_iter()
-        .flat_map(Option::into_iter)
-        .max()
-        .expect("at least one of them should be Some");
-    seen.insert((n, batteries), value);
-    Some(value)
+    result
+        .parse()
+        .expect("pasting multiple digits together should yield an integer")
 }
 
 fn joltage(batteries: &str) -> u64 {
-    do_joltage(2, batteries.as_bytes(), &mut HashMap::new())
-        .expect("input should be longer than 2 to make this work")
+    do_joltage(2, batteries.as_bytes())
 }
 
 fn part_1<'a>(input: impl Iterator<Item = &'a str>) -> u64 {
@@ -55,8 +57,7 @@ fn part_1<'a>(input: impl Iterator<Item = &'a str>) -> u64 {
 }
 
 fn joltage_override(batteries: &str) -> u64 {
-    do_joltage(12, batteries.as_bytes(), &mut HashMap::new())
-        .expect("input should be longer than 12 to make this work")
+    do_joltage(12, batteries.as_bytes())
 }
 
 fn part_2<'a>(input: impl Iterator<Item = &'a str>) -> u64 {
@@ -72,12 +73,15 @@ mod tests {
         assert_eq!(98, joltage("987654321111111"));
         assert_eq!(89, joltage("811111111111119"));
         assert_eq!(78, joltage("234234234234278"));
+        assert_eq!(92, joltage("818181911112111"));
     }
 
     #[test]
     fn example_override() {
         assert_eq!(987654321111, joltage_override("987654321111111"));
         assert_eq!(811111111119, joltage_override("811111111111119"));
+        assert_eq!(434234234278, joltage_override("234234234234278"));
+        assert_eq!(888911112111, joltage_override("818181911112111"));
     }
 
     #[test]
