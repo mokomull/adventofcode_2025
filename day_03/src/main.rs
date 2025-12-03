@@ -75,12 +75,15 @@ mod tests {
         assert_eq!(98, joltage("987654321111111"));
         assert_eq!(89, joltage("811111111111119"));
         assert_eq!(78, joltage("234234234234278"));
+        assert_eq!(92, joltage("818181911112111"));
     }
 
     #[test]
     fn example_override() {
         assert_eq!(987654321111, joltage_override("987654321111111"));
         assert_eq!(811111111119, joltage_override("811111111111119"));
+        assert_eq!(434234234278, joltage_override("234234234234278"));
+        assert_eq!(888911112111, joltage_override("818181911112111"));
     }
 
     #[test]
