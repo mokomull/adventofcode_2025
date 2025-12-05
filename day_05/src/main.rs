@@ -39,7 +39,7 @@ fn part_1(fresh: &BTreeMap<u64, u64>, ingredients: &[u64]) -> usize {
     ingredients
         .iter()
         .filter(|&&i| {
-            let Some((&from, &to)) = fresh.range(..=i).next() else {
+            let Some((&from, &to)) = fresh.range(..=i).next_back() else {
                 return false;
             };
 
