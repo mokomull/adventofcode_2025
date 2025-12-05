@@ -1,4 +1,6 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, ops::RangeInclusive};
+
+type RangeSet = range_set::RangeSet<[RangeInclusive<u64>; 0]>;
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -7,8 +9,8 @@ fn main() {
     println!("part 1: {}", part_1(&fresh, &ingredients));
 }
 
-fn parse(input: &str) -> (BTreeMap<u64, u64>, Vec<u64>) {
-    let mut fresh = BTreeMap::new();
+fn parse(input: &str) -> (RangeSet, Vec<u64>) {
+    let mut fresh = RangeSet::new();
     let mut ingredients = vec![];
 
     let mut lines = input.lines();
@@ -24,7 +26,7 @@ fn parse(input: &str) -> (BTreeMap<u64, u64>, Vec<u64>) {
             .try_into()
             .expect("there should be exactly two components to a range");
 
-        fresh.insert(first, last);
+        fresh.insert_range(first..=last);
     }
 
     for l in &mut lines {
@@ -35,15 +37,6 @@ fn parse(input: &str) -> (BTreeMap<u64, u64>, Vec<u64>) {
     (fresh, ingredients)
 }
 
-fn part_1(fresh: &BTreeMap<u64, u64>, ingredients: &[u64]) -> usize {
-    ingredients
-        .iter()
-        .filter(|&&i| {
-            let Some((&from, &to)) = fresh.range(..=i).next_back() else {
-                return false;
-            };
-
-            (from..=to).contains(&i)
-        })
-        .count()
+fn part_1(fresh: &RangeSet, ingredients: &[u64]) -> usize {
+    ingredients.iter().filter(|&&i| fresh.contains(i)).count()
 }
