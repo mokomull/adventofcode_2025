@@ -7,6 +7,7 @@ static INPUT: &str = include_str!("input.txt");
 fn main() {
     let (fresh, ingredients) = parse(INPUT);
     println!("part 1: {}", part_1(&fresh, &ingredients));
+    println!("part 2: {}", part_2(&fresh));
 }
 
 fn parse(input: &str) -> (RangeSet, Vec<u64>) {
@@ -39,4 +40,8 @@ fn parse(input: &str) -> (RangeSet, Vec<u64>) {
 
 fn part_1(fresh: &RangeSet, ingredients: &[u64]) -> usize {
     ingredients.iter().filter(|&&i| fresh.contains(i)).count()
+}
+
+fn part_2(fresh: &RangeSet) -> u64 {
+    fresh.as_ref().iter().map(|r| r.end() - r.start() + 1).sum()
 }
