@@ -2,6 +2,7 @@ use std::num::ParseIntError;
 
 static INPUT: &str = include_str!("input.txt");
 
+#[derive(Clone, Copy)]
 enum Operation {
     Add,
     Multiply,
@@ -9,6 +10,7 @@ enum Operation {
 
 fn main() {
     let (numbers, operations) = parse(INPUT);
+    println!("part 1: {}", part_1(&numbers, &operations));
 }
 
 fn parse(input: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
@@ -38,4 +40,18 @@ fn parse(input: &str) -> (Vec<Vec<u64>>, Vec<Operation>) {
     }
 
     panic!("never saw the operations")
+}
+
+fn part_1(numbers: &[Vec<u64>], operations: &[Operation]) -> u64 {
+    operations
+        .iter()
+        .enumerate()
+        .map(|(i, &op)| {
+            let xs = numbers.iter().map(|x| x[i]);
+            match op {
+                Operation::Add => xs.sum::<u64>(),
+                Operation::Multiply => xs.product(),
+            }
+        })
+        .sum()
 }
