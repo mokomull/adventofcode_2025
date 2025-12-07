@@ -10,6 +10,7 @@ enum Cell {
 fn main() {
     let (start, cells) = parse(INPUT);
     println!("part 1: {}", part_1(start, &cells));
+    println!("part 2: {}", part_2(start, &cells));
 }
 
 fn parse(input: &str) -> ((usize, usize), Vec<Vec<Cell>>) {
