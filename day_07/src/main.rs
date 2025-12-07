@@ -8,7 +8,8 @@ enum Cell {
 }
 
 fn main() {
-    println!("Hello, world!");
+    let (start, cells) = parse(INPUT);
+    println!("part 1: {}", part_1(start, &cells));
 }
 
 fn parse(input: &str) -> ((usize, usize), Vec<Vec<Cell>>) {
