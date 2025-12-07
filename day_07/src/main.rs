@@ -84,7 +84,7 @@ fn part_2(start: (usize, usize), cells: &[Vec<Cell>]) -> u64 {
         for (beam_j, count) in beams {
             match line[beam_j] {
                 Cell::Empty => {
-                    next_beams.insert(beam_j, count);
+                    *next_beams.entry(beam_j).or_default() += count;
                 }
                 Cell::Splitter => {
                     if beam_j > 0 {
