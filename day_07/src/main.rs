@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -72,9 +72,39 @@ fn part_1(start: (usize, usize), cells: &[Vec<Cell>]) -> u64 {
     splits
 }
 
+fn part_2(start: (usize, usize), cells: &[Vec<Cell>]) -> u64 {
+    let (start_i, start_j) = start;
+
+    let mut beams = HashMap::from([(start_j, 1)]);
+
+    for line in cells.iter().skip(start_i) {
+        let mut next_beams = HashMap::new();
+
+        for (beam_j, count) in beams {
+            match line[beam_j] {
+                Cell::Empty => {
+                    next_beams.insert(beam_j, count);
+                }
+                Cell::Splitter => {
+                    if beam_j > 0 {
+                        *next_beams.entry(beam_j - 1).or_default() += count;
+                    }
+                    if beam_j < line.len() - 1 {
+                        *next_beams.entry(beam_j + 1).or_default() += count;
+                    }
+                }
+            }
+        }
+
+        beams = next_beams;
+    }
+
+    beams.into_values().sum()
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::{parse, part_1};
+    use crate::{parse, part_1, part_2};
 
     #[test]
     fn example() {
@@ -98,5 +128,6 @@ mod tests {
         );
 
         assert_eq!(21, part_1(start, &cells));
+        assert_eq!(40, part_2(start, &cells));
     }
 }
