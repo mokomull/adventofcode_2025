@@ -91,7 +91,7 @@ fn part_1(boxes: &[(u32, u32, u32)]) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{do_connections, parse};
+    use crate::{INPUT, do_connections, parse, part_1};
 
     #[test]
     fn example() {
@@ -118,5 +118,11 @@ mod tests {
 425,690,689",
         );
         assert_eq!(40, do_connections::<10>(&boxes))
+    }
+
+    #[test]
+    fn personal_input() {
+        let boxes = parse(INPUT);
+        assert_eq!(98696, part_1(&boxes));
     }
 }
