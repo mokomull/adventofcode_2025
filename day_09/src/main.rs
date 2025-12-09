@@ -32,3 +32,23 @@ fn part_1(red_squares: &[(u32, u32)]) -> u64 {
         .max()
         .expect("there was at least one pair of squares")
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{parse, part_1};
+
+    #[test]
+    fn example() {
+        let red_squares = parse(
+            "7,1
+11,1
+11,7
+9,7
+9,5
+2,5
+2,3
+7,3",
+        );
+        assert_eq!(50, part_1(&red_squares));
+    }
+}
