@@ -10,6 +10,7 @@ static INPUT: &str = include_str!("input.txt");
 fn main() {
     let red_squares = parse(INPUT);
     println!("part 1: {}", part_1(&red_squares));
+    println!("part 2: {}", part_2(&red_squares));
 }
 
 fn parse(input: &str) -> Vec<(u32, u32)> {
