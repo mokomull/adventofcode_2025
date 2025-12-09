@@ -72,6 +72,7 @@ fn part_2(red_squares: &[(u32, u32)]) -> u64 {
         // cast a ray horizontally from =(-infinity, y) to (x, y) ... because of this, we could just
         // deal with only the vertical lines.
         let mut is_inside = false;
+        let mut last_line_was_endpoint_and_was_top_endpoint = None;
         for (line_x, line_ys) in &vertical_lines {
             if !line_ys.contains(&y) {
                 // this vertical line is somewhere else on the map
@@ -88,7 +89,34 @@ fn part_2(red_squares: &[(u32, u32)]) -> u64 {
                 return is_inside;
             }
 
-            is_inside = !is_inside;
+            // if this y coordinate is one of the endpoints of the vertical line, then we need some special treatment
+            if let Some(last_was_top_endpoint) = last_line_was_endpoint_and_was_top_endpoint {
+                assert!(
+                    y == *line_ys.start() || y == *line_ys.end(),
+                    "if the previous vertical line had this y-coordinate as an endpoint, then one of the endpoints of this vertical line must also be the same y-coordinate"
+                );
+
+                let this_one_is_top = y == *line_ys.end();
+
+                // if the vertical line goes back the same way it came from, then we've entered or
+                // left the polygon a second time
+                if this_one_is_top == last_was_top_endpoint {
+                    is_inside = !is_inside
+                }
+
+                // but if it continues in the same direction, then it's (for the purposes of walking
+                // from -infinity) a continuation of the same line, so don't flip is_inside
+
+                last_line_was_endpoint_and_was_top_endpoint = None;
+            } else {
+                if y == *line_ys.start() {
+                    last_line_was_endpoint_and_was_top_endpoint = Some(false);
+                } else if y == *line_ys.end() {
+                    last_line_was_endpoint_and_was_top_endpoint = Some(true);
+                }
+
+                is_inside = !is_inside;
+            }
         }
 
         assert!(
