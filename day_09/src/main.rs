@@ -27,7 +27,8 @@ fn part_1(red_squares: &[(u32, u32)]) -> u64 {
         .iter()
         .tuple_combinations()
         .map(|(&(x1, y1), &(x2, y2))| {
-            (x1 as i64 - x2 as i64).unsigned_abs() * (y1 as i64 - y2 as i64).unsigned_abs()
+            ((x1 as i64 - x2 as i64).unsigned_abs() + 1)
+                * ((y1 as i64 - y2 as i64).unsigned_abs() + 1)
         })
         .max()
         .expect("there was at least one pair of squares")
