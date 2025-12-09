@@ -1,7 +1,4 @@
-use std::{
-    cmp::{Reverse, max, min},
-    collections::HashSet,
-};
+use std::cmp::{Reverse, max, min};
 
 use itertools::Itertools;
 
