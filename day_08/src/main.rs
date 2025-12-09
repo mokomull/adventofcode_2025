@@ -202,5 +202,6 @@ mod tests {
     fn personal_input() {
         let boxes = parse(INPUT);
         assert_eq!(98696, part_1(&boxes));
+        assert_eq!(2245203960, part_2(&boxes));
     }
 }
