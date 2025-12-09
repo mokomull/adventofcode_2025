@@ -5,8 +5,6 @@ use std::{
 
 use itertools::Itertools;
 
-use Handedness::*;
-
 static INPUT: &str = include_str!("input.txt");
 
 fn main() {
@@ -66,42 +64,50 @@ fn part_2(red_squares: &[(u32, u32)]) -> u64 {
             //     rectangle.  Since the borders of the loop are considered OK, the loop may touch
             //     the borders of this rectangle -- it is strictly the inside that we care about.
 
-            // Iterate over the corners of the loop.  This is the corner at point `b`, and treating
-            // it for handedness as if it were from `a` via `b` to `c`.
-            for (&a, &b, &c) in red_squares
+            let inside_xs = (min(x1, x2) + 1)..max(x1, x2);
+            let inside_ys = (min(y1, y2) + 1)..max(y1, y2);
+
+            for (&a, &b) in red_squares
                 .iter()
                 .chain([&red_squares[0]].into_iter())
                 .tuple_windows()
             {
-                // If (x1, y1) is outside the polygon, then for some corner it will be on different
-                // sides of the a->b line than the b->c line.  I don't actually have a proof for
-                // this, but it feels like the sort of trick that would work.
+                // "none of the line segments of the loop may pass through the inside of this
+                // rectangle" -- this one is easier to start with
+                if a.0 == b.0 {
+                    if inside_xs.contains(&a.0) {
+                        let line_ys = min(a.1, b.1)..=max(a.1, b.1);
+                        if line_ys.contains(&inside_ys.start)
+                            || line_ys.contains(&inside_ys.end)
+                            || inside_ys.contains(&a.1)
+                            || inside_ys.contains(&b.1)
+                        {
+                            return None;
+                        }
+                    }
+                } else if a.1 == b.1 {
+                    if inside_ys.contains(&a.1) {
+                        let line_xs = min(a.0, b.0)..=max(a.0, b.0);
+                        if line_xs.contains(&inside_xs.start)
+                            || line_xs.contains(&inside_xs.end)
+                            || inside_xs.contains(&a.0)
+                            || inside_xs.contains(&b.0)
+                        {
+                            return None;
+                        }
+                    }
+                } else {
+                    panic!("not a vertical or horizontal line")
+                }
+
+                // TODO: implement the Ray casting algorithm from
+                // https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm
             }
 
             Some(area)
         })
         .next()
         .expect("no rectangles that are filled with only red and green")
-}
-
-enum Handedness {
-    OnTheLine,
-    Left,
-    Right,
-}
-
-impl Handedness {
-    fn compute(a: (usize, usize), b: (usize, usize), x: (usize, usize)) -> Handedness {
-        if a.0 == b.0 {
-            if a.1 > b.1 {
-                if x.0 == a.0 && (b.1..=a.1).contains(&x.1) {
-                    return OnTheLine;
-                }
-            }
-        }
-
-        todo!()
-    }
 }
 
 #[cfg(test)]
