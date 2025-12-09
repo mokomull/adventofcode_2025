@@ -65,7 +65,7 @@ fn do_connections<const N: usize>(boxes: &[(u32, u32, u32)]) -> u32 {
 
         let mut neighborhood = HashSet::from([i]);
 
-        let mut queue = actual_edges[&i].clone();
+        let mut queue = actual_edges.get(&i).cloned().unwrap_or_default();
         while let Some(j) = queue.pop() {
             if !seen.insert(j) {
                 continue;
