@@ -55,54 +55,73 @@ fn part_2(red_squares: &[(u32, u32)]) -> u64 {
         .collect_vec();
     areas.sort_unstable_by_key(|&(_corner_a, _corner_b, area)| Reverse(area));
 
+    let mut vertical_lines = red_squares
+        .iter()
+        .chain([&red_squares[0]])
+        .tuple_windows()
+        .filter_map(|(&a, &b)| {
+            if a.0 == b.0 {
+                Some((a.0, min(a.1, b.1)..=max(a.1, b.1)))
+            } else if a.1 == b.1 {
+                None
+            } else {
+                panic!("not vertical or horizontal line")
+            }
+        })
+        .collect_vec();
+    vertical_lines.sort_unstable_by_key(|(x, _ys)| *x);
+
+    let is_inside_polygon = move |(x, y)| -> bool {
+        // cast a ray horizontally from =(-infinity, y) to (x, y) ... because of this, we could just
+        // deal with only the vertical lines.
+        let mut is_inside = false;
+        for (line_x, line_ys) in &vertical_lines {
+            if !line_ys.contains(&y) {
+                // this vertical line is somewhere else on the map
+                continue;
+            }
+
+            // by definition, if (x, y) lands directly on a line, then it is "inside" the polygon
+            if x == *line_x {
+                return true;
+            }
+
+            if *line_x > x {
+                // we've iterated through all of the lines at and to the left of this
+                return is_inside;
+            }
+
+            is_inside = !is_inside;
+        }
+
+        assert!(
+            !is_inside,
+            "we passed clear through the polygon but we think we're inside"
+        );
+        is_inside
+    };
+
     areas
         .into_iter()
         .filter_map(|((x1, y1), (x2, y2), area)| {
-            // For this rectangle to be fully on red-or-green squares:
-            //   * at least one of the corners must be inside the red-or-green polygon (I will chose
-            //     (x1, y1)), and
-            //   * none of the line segments of the loop may pass through the inside of this
-            //     rectangle.  Since the borders of the loop are considered OK, the loop may touch
-            //     the borders of this rectangle -- it is strictly the inside that we care about.
+            // Since the loop should not form a polygon with holes in it (i.e. it is "simple") we
+            // should be able to get away with walking the perimeter of the rectangle and using the
+            // ray casting algorithm from
+            // https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm.
 
-            let inside_xs = (min(x1, x2) + 1)..max(x1, x2);
-            let inside_ys = (min(y1, y2) + 1)..max(y1, y2);
+            let xs = (min(x1, x2))..=max(x1, x2);
+            let ys = (min(y1, y2))..=max(y1, y2);
 
-            for (&a, &b) in red_squares
-                .iter()
-                .chain([&red_squares[0]].into_iter())
-                .tuple_windows()
-            {
-                // "none of the line segments of the loop may pass through the inside of this
-                // rectangle" -- this one is easier to start with
-                if a.0 == b.0 {
-                    if inside_xs.contains(&a.0) {
-                        let line_ys = min(a.1, b.1)..=max(a.1, b.1);
-                        if line_ys.contains(&inside_ys.start)
-                            || line_ys.contains(&inside_ys.end)
-                            || inside_ys.contains(&a.1)
-                            || inside_ys.contains(&b.1)
-                        {
-                            return None;
-                        }
-                    }
-                } else if a.1 == b.1 {
-                    if inside_ys.contains(&a.1) {
-                        let line_xs = min(a.0, b.0)..=max(a.0, b.0);
-                        if line_xs.contains(&inside_xs.start)
-                            || line_xs.contains(&inside_xs.end)
-                            || inside_xs.contains(&a.0)
-                            || inside_xs.contains(&b.0)
-                        {
-                            return None;
-                        }
-                    }
-                } else {
-                    panic!("not a vertical or horizontal line")
+            for x in xs {
+                if !is_inside_polygon((x, y1)) || !is_inside_polygon((x, y2)) {
+                    return None;
                 }
+            }
 
-                // TODO: implement the Ray casting algorithm from
-                // https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm
+            for y in ys {
+                if !is_inside_polygon((x1, y)) || !is_inside_polygon((x2, y)) {
+                    return None;
+                }
             }
 
             Some(area)
