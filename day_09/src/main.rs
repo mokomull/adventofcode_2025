@@ -73,7 +73,7 @@ fn part_2(red_squares: &[(u32, u32)]) -> u64 {
 
     areas
         .into_iter()
-        .filter_map(|((x1, x2), (y1, y2), area)| {
+        .filter_map(|((x1, y1), (x2, y2), area)| {
             let xs = min(x1, x2)..=max(x1, x2);
             let ys = min(y1, y2)..=max(y1, y2);
             if xs
