@@ -27,7 +27,7 @@ fn parse(input: &str) -> Vec<(u32, u32, u32)> {
         .collect()
 }
 
-fn do_connections<const N: usize>(boxes: &[(u32, u32, u32)]) -> u32 {
+fn generate_edge_heap(boxes: &[(u32, u32, u32)]) -> BinaryHeap<(Reverse<i64>, usize, usize)> {
     let mut possible_edges = BinaryHeap::new();
 
     for (i, j) in (0..boxes.len()).tuple_combinations() {
@@ -45,6 +45,11 @@ fn do_connections<const N: usize>(boxes: &[(u32, u32, u32)]) -> u32 {
         possible_edges.push((Reverse(distance_squared), i, j));
     }
 
+    possible_edges
+}
+
+fn do_connections<const N: usize>(boxes: &[(u32, u32, u32)]) -> u32 {
+    let mut possible_edges = generate_edge_heap(boxes);
     let mut actual_edges = HashMap::<usize, Vec<usize>>::new();
     for _ in 0..N {
         let Some((_distance, i, j)) = possible_edges.pop() else {
