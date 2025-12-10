@@ -5,6 +5,7 @@ static INPUT: &str = include_str!("input.txt");
 fn main() {
     let machines = INPUT.lines().map(Machine::from_str).collect::<Vec<_>>();
     println!("part 1: {}", part_1(&machines));
+    println!("part 2: {}", part_2(&machines));
 }
 
 struct Machine {
@@ -120,6 +121,10 @@ impl Machine {
 
 fn part_1(machines: &[Machine]) -> u64 {
     machines.iter().map(Machine::part_1).map(|x| x as u64).sum()
+}
+
+fn part_2(machines: &[Machine]) -> u64 {
+    machines.iter().map(Machine::part_2).map(|x| x as u64).sum()
 }
 
 #[cfg(test)]
