@@ -86,6 +86,36 @@ impl Machine {
 
         results[&self.desired_indicators]
     }
+
+    fn part_2(&self) -> usize {
+        let mut results = HashMap::from([(vec![0; self.joltage.len()], 0)]);
+
+        let mut queue = BTreeSet::from([vec![0; self.joltage.len()]]);
+        while let Some(this) = queue.pop_first() {
+            let next_path = results[&this] + 1;
+            'button: for button in self.buttons.iter() {
+                let mut next_joltage = this.clone();
+                for &i in button {
+                    next_joltage[i] += 1;
+                }
+
+                // if any of the joltage is above our target then we shouldn't bother enqueueing it,
+                // we will never un-jolt the joltage
+                for (&i, &d) in next_joltage.iter().zip(self.joltage.iter()) {
+                    if i > d {
+                        continue 'button;
+                    }
+                }
+
+                if results.get(&next_joltage).cloned().unwrap_or(usize::MAX) > next_path {
+                    results.insert(next_joltage.clone(), next_path);
+                    queue.insert(next_joltage);
+                }
+            }
+        }
+
+        results[&self.joltage]
+    }
 }
 
 fn part_1(machines: &[Machine]) -> u64 {
@@ -101,5 +131,6 @@ mod tests {
         let machine =
             Machine::from_str("[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}");
         assert_eq!(2, machine.part_1());
+        assert_eq!(11, machine.part_2());
     }
 }
