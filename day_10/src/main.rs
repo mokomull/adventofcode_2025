@@ -4,6 +4,7 @@ static INPUT: &str = include_str!("input.txt");
 
 fn main() {
     let machines = INPUT.lines().map(Machine::from_str).collect::<Vec<_>>();
+    println!("part 1: {}", part_1(&machines));
 }
 
 struct Machine {
@@ -85,6 +86,10 @@ impl Machine {
 
         results[&self.desired_indicators]
     }
+}
+
+fn part_1(machines: &[Machine]) -> u64 {
+    machines.iter().map(Machine::part_1).map(|x| x as u64).sum()
 }
 
 #[cfg(test)]
