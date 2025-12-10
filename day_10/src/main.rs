@@ -1,3 +1,5 @@
+use std::collections::{BTreeSet, HashMap};
+
 static INPUT: &str = include_str!("input.txt");
 
 fn main() {
@@ -60,5 +62,39 @@ impl Machine {
             buttons,
             joltage,
         }
+    }
+
+    fn part_1(&self) -> usize {
+        let mut results = HashMap::from([(vec![false; self.desired_indicators.len()], 0)]);
+
+        let mut queue = BTreeSet::from([vec![false; self.desired_indicators.len()]]);
+        while let Some(this) = queue.pop_first() {
+            let next_path = results[&this] + 1;
+            for (button) in self.buttons.iter() {
+                let mut next_indicators = this.clone();
+                for &i in button {
+                    next_indicators[i] ^= true;
+                }
+
+                if results.get(&next_indicators).cloned().unwrap_or(usize::MAX) > next_path {
+                    results.insert(next_indicators.clone(), next_path);
+                    queue.insert(next_indicators);
+                }
+            }
+        }
+
+        results[&self.desired_indicators]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Machine;
+
+    #[test]
+    fn example() {
+        let machine =
+            Machine::from_str("[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}");
+        assert_eq!(2, machine.part_1());
     }
 }
