@@ -1,11 +1,12 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::RandomState};
 
-use petgraph::{Graph, graph::NodeIndex};
+use petgraph::{Graph, algo::all_simple_paths, graph::NodeIndex};
 
 static INPUT: &str = include_str!("input.txt");
 
 fn main() {
     let (graph, you, out) = parse(INPUT);
+    println!("part 1: {}", part_1(graph, you, out));
 }
 
 fn parse<'a>(input: &'a str) -> (Graph<(), ()>, NodeIndex, NodeIndex) {
@@ -29,4 +30,8 @@ fn parse<'a>(input: &'a str) -> (Graph<(), ()>, NodeIndex, NodeIndex) {
     }
 
     (graph, nodes["you"], nodes["out"])
+}
+
+fn part_1(graph: Graph<(), ()>, you: NodeIndex, out: NodeIndex) -> usize {
+    all_simple_paths::<Vec<_>, _, RandomState>(&graph, you, out, 0, None).count()
 }
