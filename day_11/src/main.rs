@@ -64,3 +64,48 @@ fn part_2(
         .filter(|path| path.contains(&fft) && path.contains(&dac))
         .count()
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{parse, part_1, part_2};
+
+    #[test]
+    fn example_part1() {
+        let (graph, you, out, _, _, _) = parse(
+            "aaa: you hhh
+you: bbb ccc
+bbb: ddd eee
+ccc: ddd eee fff
+ddd: ggg
+eee: out
+fff: out
+ggg: out
+hhh: ccc fff iii
+iii: out
+xxx: svr fft dac",
+        );
+        assert_eq!(5, part_1(&graph, you, out));
+    }
+
+    #[test]
+    fn example_part2() {
+        let (graph, _, out, svr, fft, dac) = parse(
+            "svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out
+you: xxx",
+        );
+
+        assert_eq!(2, part_2(&graph, svr, out, fft, dac));
+    }
+}
