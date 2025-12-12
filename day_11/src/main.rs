@@ -4,7 +4,7 @@ use petgraph::{
     Direction::Incoming,
     Graph,
     graph::NodeIndex,
-    visit::{Bfs, EdgeRef},
+    visit::{EdgeRef, Topo},
 };
 
 static INPUT: &str = include_str!("input.txt");
@@ -78,8 +78,8 @@ fn count_paths_via(
     assert!(via.len() < 8);
 
     let mut distances = HashMap::from([((from, 0), 1)]);
-    let mut bfs = Bfs::new(graph, from);
-    while let Some(node) = bfs.next(graph) {
+    let mut topo = Topo::new(graph);
+    while let Some(node) = topo.next(graph) {
         // precompute a one-bit-set bitmask if this is one of the nodes that we must go via
         let or = match via.iter().position(|&i| node == i) {
             Some(i) => 1 << i,
