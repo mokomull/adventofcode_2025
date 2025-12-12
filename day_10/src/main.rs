@@ -1,10 +1,16 @@
-use std::collections::{BTreeSet, HashMap};
+use std::{
+    collections::{BTreeSet, HashMap},
+    iter::repeat_with,
+};
+
+use microlp::{ComparisonOp, OptimizationDirection::Minimize, Problem};
 
 static INPUT: &str = include_str!("input.txt");
 
 fn main() {
     let machines = INPUT.lines().map(Machine::from_str).collect::<Vec<_>>();
     println!("part 1: {}", part_1(&machines));
+    println!("part 2: {}", part_2(&machines));
 }
 
 struct Machine {
@@ -86,10 +92,39 @@ impl Machine {
 
         results[&self.desired_indicators]
     }
+
+    fn part_2(&self) -> usize {
+        let mut problem = Problem::new(Minimize);
+
+        let variables = repeat_with(|| problem.add_integer_var(1.0, (0, i32::MAX)))
+            .take(self.buttons.len())
+            .collect::<Vec<_>>();
+
+        for (i, &joltage) in self.joltage.iter().enumerate() {
+            let expr =
+                self.buttons
+                    .iter()
+                    .zip(variables.iter())
+                    .filter_map(|(button, &variable)| {
+                        if button.contains(&i) {
+                            Some((variable, 1.0))
+                        } else {
+                            None
+                        }
+                    });
+            problem.add_constraint(expr, ComparisonOp::Eq, joltage as f64);
+        }
+
+        problem.solve().unwrap().objective().round() as usize
+    }
 }
 
 fn part_1(machines: &[Machine]) -> u64 {
     machines.iter().map(Machine::part_1).map(|x| x as u64).sum()
+}
+
+fn part_2(machines: &[Machine]) -> u64 {
+    machines.iter().map(Machine::part_2).map(|x| x as u64).sum()
 }
 
 #[cfg(test)]
@@ -101,5 +136,6 @@ mod tests {
         let machine =
             Machine::from_str("[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}");
         assert_eq!(2, machine.part_1());
+        assert_eq!(11, machine.part_2());
     }
 }
