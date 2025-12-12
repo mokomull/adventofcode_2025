@@ -1,4 +1,9 @@
-use std::collections::{BTreeSet, HashMap};
+use std::{
+    collections::{BTreeSet, HashMap},
+    iter::repeat_with,
+};
+
+use microlp::{ComparisonOp, OptimizationDirection::Minimize, Problem};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -89,33 +94,28 @@ impl Machine {
     }
 
     fn part_2(&self) -> usize {
-        let mut results = HashMap::from([(vec![0; self.joltage.len()], 0)]);
+        let mut problem = Problem::new(Minimize);
 
-        let mut queue = BTreeSet::from([vec![0; self.joltage.len()]]);
-        while let Some(this) = queue.pop_first() {
-            let next_path = results[&this] + 1;
-            'button: for button in self.buttons.iter() {
-                let mut next_joltage = this.clone();
-                for &i in button {
-                    next_joltage[i] += 1;
-                }
+        let variables = repeat_with(|| problem.add_integer_var(1.0, (0, i32::MAX)))
+            .take(self.buttons.len())
+            .collect::<Vec<_>>();
 
-                // if any of the joltage is above our target then we shouldn't bother enqueueing it,
-                // we will never un-jolt the joltage
-                for (&i, &d) in next_joltage.iter().zip(self.joltage.iter()) {
-                    if i > d {
-                        continue 'button;
-                    }
-                }
-
-                if results.get(&next_joltage).cloned().unwrap_or(usize::MAX) > next_path {
-                    results.insert(next_joltage.clone(), next_path);
-                    queue.insert(next_joltage);
-                }
-            }
+        for (i, &joltage) in self.joltage.iter().enumerate() {
+            let expr =
+                self.buttons
+                    .iter()
+                    .zip(variables.iter())
+                    .filter_map(|(button, &variable)| {
+                        if button.contains(&i) {
+                            Some((variable, 1.0))
+                        } else {
+                            None
+                        }
+                    });
+            problem.add_constraint(expr, ComparisonOp::Eq, joltage as f64);
         }
 
-        results[&self.joltage]
+        problem.solve().unwrap().objective().round() as usize
     }
 }
 
