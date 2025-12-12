@@ -146,7 +146,8 @@ you: xxx",
 
     #[test]
     fn personal_input() {
-        let (graph, you, out, _, _, _) = parse(INPUT);
+        let (graph, you, out, svr, fft, dac) = parse(INPUT);
         assert_eq!(508, part_1(&graph, you, out));
+        assert_eq!(315116216513280, part_2(&graph, svr, out, fft, dac))
     }
 }
