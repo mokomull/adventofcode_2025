@@ -1,6 +1,11 @@
-use std::{collections::HashMap, hash::RandomState};
+use std::collections::HashMap;
 
-use petgraph::{Graph, algo::all_simple_paths, graph::NodeIndex};
+use petgraph::{
+    Direction::Incoming,
+    Graph,
+    graph::NodeIndex,
+    visit::{Bfs, EdgeRef},
+};
 
 static INPUT: &str = include_str!("input.txt");
 
@@ -50,7 +55,7 @@ fn parse<'a>(
 }
 
 fn part_1(graph: &Graph<(), ()>, you: NodeIndex, out: NodeIndex) -> usize {
-    all_simple_paths::<Vec<_>, _, RandomState>(graph, you, out, 0, None).count()
+    count_paths_via(graph, you, out, &[])
 }
 
 fn part_2(
@@ -60,14 +65,44 @@ fn part_2(
     fft: NodeIndex,
     dac: NodeIndex,
 ) -> usize {
-    all_simple_paths::<Vec<_>, _, RandomState>(graph, you, out, 0, None)
-        .filter(|path| path.contains(&fft) && path.contains(&dac))
-        .count()
+    count_paths_via(graph, you, out, &[fft, dac])
+}
+
+fn count_paths_via(
+    graph: &Graph<(), ()>,
+    from: NodeIndex,
+    to: NodeIndex,
+    via: &[NodeIndex],
+) -> usize {
+    // unnecessary optimization: store via in a bitfield
+    assert!(via.len() < 8);
+
+    let mut distances = HashMap::from([((from, 0), 1)]);
+    let mut bfs = Bfs::new(graph, from);
+    while let Some(node) = bfs.next(graph) {
+        // precompute a one-bit-set bitmask if this is one of the nodes that we must go via
+        let or = match via.iter().position(|&i| node == i) {
+            Some(i) => 1 << i,
+            None => 0,
+        };
+
+        for prev in graph.edges_directed(node, Incoming).map(|e| e.source()) {
+            for visited_via in 0..(1 << via.len()) {
+                let Some(&prev_count) = distances.get(&(prev, visited_via)) else {
+                    continue;
+                };
+
+                *distances.entry((node, visited_via | or)).or_default() += prev_count;
+            }
+        }
+    }
+
+    distances[&(to, (1 << via.len()) - 1)]
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{parse, part_1, part_2};
+    use crate::{INPUT, parse, part_1, part_2};
 
     #[test]
     fn example_part1() {
@@ -107,5 +142,11 @@ you: xxx",
         );
 
         assert_eq!(2, part_2(&graph, svr, out, fft, dac));
+    }
+
+    #[test]
+    fn personal_input() {
+        let (graph, you, out, _, _, _) = parse(INPUT);
+        assert_eq!(508, part_1(&graph, you, out));
     }
 }
